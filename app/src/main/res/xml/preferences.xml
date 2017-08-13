@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <PreferenceCategory
+        android:title="Trycorder"
+        android:key="pref_key_main_settings">
+        <CheckBoxPreference
+            android:key="pref_key_ischatty"
+            android:summary="Determine if the speak function is chatty"
+            android:title="Speak more often"
+            android:defaultValue="false" />
+        <CheckBoxPreference
+            android:key="pref_key_auto_listen"
+            android:summary="Determine if the listen function is looping"
+            android:title="Automatic loop"
+            android:defaultValue="false" />
+    </PreferenceCategory>
+
+</PreferenceScreen>
