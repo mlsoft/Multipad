@@ -248,6 +248,7 @@ public class MultipadActivity extends Activity
         String logs = sharedPref.getString("pref_key_logbuffer", "");
         logbuffer.setLength(0);
         logbuffer.insert(0,logs);
+        logbuffer.insert(0,"-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=\n");
 
         // initialize the speak processor
         initspeak();
@@ -520,6 +521,11 @@ public class MultipadActivity extends Activity
     private void buttonsound() {
         playsound(R.raw.keyok2);
     }
+
+    private void buttonbad() {
+        playsound(R.raw.denybeep1);
+    }
+
 
     // =====================================================================================
 
