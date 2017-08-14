@@ -1,4 +1,4 @@
-package net.ddns.mlsoftlaberge.multipad;
+package net.ddns.mlsoftlaberge.multipad.fragments;
 
 /*
 *  By Martin Laberge (mlsoftlaberge@gmail.com), From August 2017 to Now.
@@ -36,30 +36,32 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
 
+import net.ddns.mlsoftlaberge.multipad.R;
+
 import java.util.ArrayList;
 
 /**
  * Created by Martin Laberge on 2017-08-10.
  */
-public class MultipadFragment extends Fragment {
+public class CommunicationFragment extends Fragment {
 
 
-    public MultipadFragment() {
+    public CommunicationFragment() {
     }
 
     // ======================================================================================
     // interface between fragment and activity to define callbacks
-    public interface OnMultipadInteractionListener {
-        void multipadButtonsound();
-        void multipadModeChange(int mode);
-        void multipadSay(String text);
-        String multipadLogs();
-        void multipadSpeak(String text);
-        void multipadListen();
+    public interface OnCommunicationInteractionListener {
+        void communicationButtonsound();
+        void communicationModeChange(int mode);
+        void communicationSay(String text);
+        String communicationLogs();
+        void communicationSpeak(String text);
+        void communicationListen();
     }
 
     // the handle to the calling activity
-    private OnMultipadInteractionListener mOnMultipadInteractionListener;
+    private OnCommunicationInteractionListener mOnCommunicationInteractionListener;
 
     // attach to the calling activity, to point to callbacks functions
     @Override
@@ -67,10 +69,10 @@ public class MultipadFragment extends Fragment {
         super.onAttach(activity);
         try {
             // Assign callback listener which the holding activity must implement.
-            mOnMultipadInteractionListener = (OnMultipadInteractionListener) activity;
+            mOnCommunicationInteractionListener = (OnCommunicationInteractionListener) activity;
         } catch (ClassCastException e) {
             throw new ClassCastException(activity.toString()
-                    + " must implement OnMultipadInteractionListener");
+                    + " must implement OnCommunicationInteractionListener");
         }
     }
 
@@ -94,7 +96,7 @@ public class MultipadFragment extends Fragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.multipad_fragment, container, false);
+        View view = inflater.inflate(R.layout.communication_fragment, container, false);
 
         PreferenceManager.setDefaultValues(getActivity(), R.xml.preferences, false);
 
@@ -132,7 +134,7 @@ public class MultipadFragment extends Fragment {
         mLogsConsole.setHorizontallyScrolling(true);
         mLogsConsole.setVerticalScrollBarEnabled(true);
         mLogsConsole.setMovementMethod(new ScrollingMovementMethod());
-        mLogsConsole.setText(mOnMultipadInteractionListener.multipadLogs());
+        mLogsConsole.setText(mOnCommunicationInteractionListener.communicationLogs());
 
         // return the view just initialized
         return view;
@@ -177,26 +179,26 @@ public class MultipadFragment extends Fragment {
     private void buttonsound() {
         //MediaPlayer mediaPlayer = MediaPlayer.create(getActivity().getBaseContext(), R.raw.keyok2);
         //mediaPlayer.start(); // no need to call prepare(); create() does that for you
-        mOnMultipadInteractionListener.multipadButtonsound();
+        mOnCommunicationInteractionListener.communicationButtonsound();
     }
 
     private void modechange(int mode) {
-        mOnMultipadInteractionListener.multipadModeChange(mode);
+        mOnCommunicationInteractionListener.communicationModeChange(mode);
     }
 
     // display the message in status bar
     private void say(String text) {
-        mOnMultipadInteractionListener.multipadSay(text);
+        mOnCommunicationInteractionListener.communicationSay(text);
     }
 
     // speak out loud the text specified
     private void speak(String text) {
-        mOnMultipadInteractionListener.multipadSpeak(text);
+        mOnCommunicationInteractionListener.communicationSpeak(text);
     }
 
     // listen to the user speaking
     private void listen() {
-        mOnMultipadInteractionListener.multipadListen();
+        mOnCommunicationInteractionListener.communicationListen();
     }
 
     // interpret the sentence pronounced by the user in the listen function (called by activity)
@@ -218,7 +220,7 @@ public class MultipadFragment extends Fragment {
         String texte = textein.toLowerCase();
         if(texte.contains("test")) {
             say("Understood 'Test'");
-            speak("This is Fragment zero");
+            speak("This is Fragment two");
             return(true);
         }
         return(false);

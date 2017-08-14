@@ -136,6 +136,20 @@
             android:weightSum="100">
 
             <Button
+                android:id="@+id/multipad_button"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_marginBottom="2dp"
+                android:layout_marginTop="2dp"
+                android:layout_marginRight="4dp"
+                android:layout_weight="10"
+                android:background="@drawable/trekbutton_gray_right"
+                android:maxLines="1"
+                android:text="PAD"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+
+            <Button
                 android:id="@+id/sensor_button"
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
@@ -194,14 +208,14 @@
         android:weightSum="100">
 
         <ImageButton
-            android:id="@+id/back_button"
+            android:id="@+id/exit_button"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="40"
             android:background="@android:color/black"
             android:scaleType="fitXY"
             android:src="@drawable/trek_bottomleft"
-            android:text="BACK" />
+            android:text="EXIT" />
 
         <LinearLayout
             android:layout_width="0dp"

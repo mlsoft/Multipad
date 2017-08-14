@@ -43,6 +43,8 @@ import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
+import net.ddns.mlsoftlaberge.multipad.fragments.CommunicationFragment;
+import net.ddns.mlsoftlaberge.multipad.fragments.SensorFragment;
 import net.ddns.mlsoftlaberge.multipad.settings.SettingsActivity;
 
 import java.util.ArrayList;
@@ -50,11 +52,15 @@ import java.util.Locale;
 
 public class MultipadActivity extends Activity
         implements RecognitionListener ,
-        MultipadFragment.OnMultipadInteractionListener {
+        MultipadFragment.OnMultipadInteractionListener,
+        SensorFragment.OnSensorInteractionListener ,
+        CommunicationFragment.OnCommunicationInteractionListener {
+
 
     // =====================================================================================
-
     // implementation of interface from fragments
+
+    // --- Multipad fragment ---
     @Override
     public void multipadButtonsound() {
         buttonsound();
@@ -85,6 +91,68 @@ public class MultipadActivity extends Activity
         return(logbuffer.toString());
     }
 
+    // --- Sensor fragment ---
+    @Override
+    public void sensorButtonsound() {
+        buttonsound();
+    }
+
+    @Override
+    public void sensorModeChange(int mode) {
+        switchfragment(mode);
+    }
+
+    @Override
+    public void sensorSpeak(String text) {
+        speak(text);
+    }
+
+    @Override
+    public void sensorListen() {
+        listen();
+    }
+
+    @Override
+    public void sensorSay(String text) {
+        say(text);
+    }
+
+    @Override
+    public String sensorLogs() {
+        return(logbuffer.toString());
+    }
+
+    // --- Communication fragment ---
+    @Override
+    public void communicationButtonsound() {
+        buttonsound();
+    }
+
+    @Override
+    public void communicationModeChange(int mode) {
+        switchfragment(mode);
+    }
+
+    @Override
+    public void communicationSpeak(String text) {
+        speak(text);
+    }
+
+    @Override
+    public void communicationListen() {
+        listen();
+    }
+
+    @Override
+    public void communicationSay(String text) {
+        say(text);
+    }
+
+    @Override
+    public String communicationLogs() {
+        return(logbuffer.toString());
+    }
+
     // =====================================================================================
 
     // tag for fragment transactions
@@ -92,6 +160,8 @@ public class MultipadActivity extends Activity
 
     // handles to fragments displayable in the fragment block
     private MultipadFragment mMultipadFragment=null;
+    private SensorFragment mSensorFragment=null;
+    private CommunicationFragment mCommunicationFragment=null;
 
     // current fragment mode
     private int currentMode=0;
@@ -129,8 +199,8 @@ public class MultipadActivity extends Activity
     private TextView mTextstatus_top;
     private TextView mTextstatus_bottom;
 
-    // the button to back operation
-    private ImageButton mBackButton;
+    // the button to exit operation
+    private ImageButton mExitButton;
 
     // the button to Navigate First
     private Button mFirstButton;
@@ -145,6 +215,9 @@ public class MultipadActivity extends Activity
     private Button mLastButton;
 
     // --------------------------------------------
+
+    // the sensors fragment button
+    private Button mMultipadButton;
 
     // the sensors fragment button
     private Button mSensorButton;
@@ -172,6 +245,9 @@ public class MultipadActivity extends Activity
         mSoundStatus = sharedPref.getBoolean("pref_key_sound_status", false);
         mRunStatus = sharedPref.getBoolean("pref_key_run_status", false);
         isChatty = sharedPref.getBoolean("pref_key_ischatty", false);
+        String logs = sharedPref.getString("pref_key_logbuffer", "");
+        logbuffer.setLength(0);
+        logbuffer.insert(0,logs);
 
         // initialize the speak processor
         initspeak();
@@ -211,6 +287,8 @@ public class MultipadActivity extends Activity
             public void onClick(View view) {
                 buttonsound();
                 mRunStatus = true;
+                say("Started");
+                if(isChatty) speak("Start");
                 //startsensors(mSensormode);
             }
         });
@@ -222,6 +300,8 @@ public class MultipadActivity extends Activity
             public void onClick(View view) {
                 buttonsound();
                 mRunStatus = false;
+                say("Stopped");
+                if(isChatty) speak("Stop");
                 //stopsensors();
             }
         });
@@ -242,11 +322,13 @@ public class MultipadActivity extends Activity
 
         // ===================== bottom horizontal button grid ==========================
         // To Navigate Back
-        mBackButton = (ImageButton) findViewById(R.id.back_button);
-        mBackButton.setOnClickListener(new View.OnClickListener() {
+        mExitButton = (ImageButton) findViewById(R.id.exit_button);
+        mExitButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 buttonsound();
+                say("Exit");
+                if(isChatty) speak("Exit");
             }
         });
 
@@ -256,6 +338,8 @@ public class MultipadActivity extends Activity
             @Override
             public void onClick(View view) {
                 buttonsound();
+                say("First");
+                if(isChatty) speak("First");
             }
         });
 
@@ -265,6 +349,8 @@ public class MultipadActivity extends Activity
             @Override
             public void onClick(View view) {
                 buttonsound();
+                say("Precedent");
+                if(isChatty) speak("Precedent");
             }
         });
 
@@ -274,6 +360,8 @@ public class MultipadActivity extends Activity
             @Override
             public void onClick(View view) {
                 buttonsound();
+                say("Next");
+                if(isChatty) speak("Next");
             }
         });
 
@@ -283,6 +371,8 @@ public class MultipadActivity extends Activity
             @Override
             public void onClick(View view) {
                 buttonsound();
+                say("Last");
+                if(isChatty) speak("Last");
             }
         });
 
@@ -293,12 +383,26 @@ public class MultipadActivity extends Activity
         // ===================== Left Vertical button grid ==========================
 
 
+        // the multipad fragment button
+        mMultipadButton = (Button) findViewById(R.id.multipad_button);
+        mMultipadButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                buttonsound();
+                say("Pad");
+                if(isChatty) speak("Pad");
+                switchfragment(0);
+            }
+        });
+
         // the sensors fragment button
         mSensorButton = (Button) findViewById(R.id.sensor_button);
         mSensorButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 buttonsound();
+                say("Sensors");
+                if(isChatty) speak("Sensors");
                 switchfragment(1);
             }
         });
@@ -309,13 +413,11 @@ public class MultipadActivity extends Activity
             @Override
             public void onClick(View view) {
                 buttonsound();
+                say("Communication");
+                if(isChatty) speak("Communication");
                 switchfragment(2);
             }
         });
-
-
-
-
 
         // ==========================================================================
         // set fonts on widgets
@@ -339,6 +441,7 @@ public class MultipadActivity extends Activity
         mTextstatus_bottom.setTypeface(face3);
 
         // left column buttons
+        mMultipadButton.setTypeface(face1);
         mSensorButton.setTypeface(face1);
         mCommButton.setTypeface(face1);
 
@@ -348,7 +451,7 @@ public class MultipadActivity extends Activity
         mMultipadFragment=new MultipadFragment();
         // start the fragment in the fragment box
         final FragmentTransaction ft = getFragmentManager().beginTransaction();
-        ft.add(R.id.fragment_block, mMultipadFragment, TAG);
+        ft.replace(R.id.fragment_block, mMultipadFragment, TAG);
         ft.commit();
         currentMode=0;
         // switch to the last used fragment if not the initial fragment
@@ -360,6 +463,20 @@ public class MultipadActivity extends Activity
 
     // =====================================================================================
 
+    // save the preferences before exiting
+    @Override
+    public void onStop() {
+        SharedPreferences.Editor editor = sharedPref.edit();
+        editor.putInt("pref_key_last_mode", currentMode);
+        editor.putBoolean("pref_key_sound_status", mSoundStatus);
+        editor.putBoolean("pref_key_run_status", mRunStatus);
+        editor.putString("pref_key_logbuffer",logbuffer.toString());
+        editor.commit();
+        super.onStop();
+    }
+
+    // =====================================================================================
+
     // switch fragment in the fragment block
     private void switchfragment(int mode) {
         final FragmentTransaction ft = getFragmentManager().beginTransaction();
@@ -367,6 +484,18 @@ public class MultipadActivity extends Activity
             case 0:
                 if(mMultipadFragment==null) mMultipadFragment=new MultipadFragment();
                 ft.replace(R.id.fragment_block, mMultipadFragment, TAG);
+                ft.commit();
+                currentMode=mode;
+                break;
+            case 1:
+                if(mSensorFragment==null) mSensorFragment=new SensorFragment();
+                ft.replace(R.id.fragment_block, mSensorFragment, TAG);
+                ft.commit();
+                currentMode=mode;
+                break;
+            case 2:
+                if(mCommunicationFragment==null) mCommunicationFragment=new CommunicationFragment();
+                ft.replace(R.id.fragment_block, mCommunicationFragment, TAG);
                 ft.commit();
                 currentMode=mode;
                 break;
@@ -432,6 +561,8 @@ public class MultipadActivity extends Activity
 
     private void logschanged(String text) {
         if(currentMode==0 && mMultipadFragment != null) mMultipadFragment.logschanged(text);
+        if(currentMode==1 && mSensorFragment != null) mSensorFragment.logschanged(text);
+        if(currentMode==2 && mCommunicationFragment != null) mCommunicationFragment.logschanged(text);
     }
 
     // =========================================================================
@@ -472,7 +603,7 @@ public class MultipadActivity extends Activity
         initspeak();
         setspeaklang(lng);
         if(tts!=null) tts.speak(texte, TextToSpeech.QUEUE_ADD, null);
-        say("Speaked: "+texte);
+        say("Speaked: "+texte+" ("+lng+")");
     }
 
     // ========================================================================================
@@ -552,13 +683,12 @@ public class MultipadActivity extends Activity
             for (int i = 0; i < dutexte.size(); ++i) {
                 String mSentence = dutexte.get(i);
                 if (matchvoice(mSentence)) {
-                    //say("Understood: " + mSentence);
+                    // the sentence has been matched, then return without further processing
                     return;
                 }
             }
-            //say("Understood: " + dutexte.get(0));
-            //speak(dutexte.get(0));
-            understood(dutexte.get(0));
+            // the sentence is passed to the active fragment(s) to be processed
+            understood(dutexte);
         }
     }
 
@@ -579,23 +709,10 @@ public class MultipadActivity extends Activity
     }
 
     // send to fragment to interpret the sentence pronounced by the user in the listen function
-    private void understood(String text) {
-        if(currentMode==0 && mMultipadFragment!=null) mMultipadFragment.understood(text);
-    }
-
-
-
-    // =====================================================================================
-
-    // save the preferences before exiting
-    @Override
-    public void onStop() {
-        SharedPreferences.Editor editor = sharedPref.edit();
-        editor.putInt("pref_key_last_mode", currentMode);
-        editor.putBoolean("pref_key_sound_status", mSoundStatus);
-        editor.putBoolean("pref_key_run_status", mRunStatus);
-        editor.commit();
-        super.onStop();
+    private void understood(ArrayList<String> dutexte) {
+        if(currentMode==0 && mMultipadFragment!=null) mMultipadFragment.understood(dutexte);
+        if(currentMode==1 && mSensorFragment!=null) mSensorFragment.understood(dutexte);
+        if(currentMode==2 && mCommunicationFragment!=null) mCommunicationFragment.understood(dutexte);
     }
 
     // =====================================================================================
