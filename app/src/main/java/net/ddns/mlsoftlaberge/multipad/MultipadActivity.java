@@ -56,6 +56,11 @@ public class MultipadActivity extends Activity
 
     // implementation of interface from fragments
     @Override
+    public void multipadButtonsound() {
+        buttonsound();
+    }
+
+    @Override
     public void multipadModeChange(int mode) {
         switchfragment(mode);
     }
@@ -63,6 +68,21 @@ public class MultipadActivity extends Activity
     @Override
     public void multipadSpeak(String text) {
         speak(text);
+    }
+
+    @Override
+    public void multipadListen() {
+        listen();
+    }
+
+    @Override
+    public void multipadSay(String text) {
+        say(text);
+    }
+
+    @Override
+    public String multipadLogs() {
+        return(logbuffer.toString());
     }
 
     // =====================================================================================
@@ -148,7 +168,7 @@ public class MultipadActivity extends Activity
 
         // load preferences from file
         sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
-        currentMode = sharedPref.getInt("pref_key_last_mode", 0);
+        int lastmode = sharedPref.getInt("pref_key_last_mode", 0);
         mSoundStatus = sharedPref.getBoolean("pref_key_sound_status", false);
         mRunStatus = sharedPref.getBoolean("pref_key_run_status", false);
         isChatty = sharedPref.getBoolean("pref_key_ischatty", false);
@@ -326,12 +346,15 @@ public class MultipadActivity extends Activity
         // --------------------------------------------------------------------------
         // create the 1 initial fragment
         mMultipadFragment=new MultipadFragment();
-
         // start the fragment in the fragment box
         final FragmentTransaction ft = getFragmentManager().beginTransaction();
         ft.add(R.id.fragment_block, mMultipadFragment, TAG);
         ft.commit();
-        currentMode = 0;
+        currentMode=0;
+        // switch to the last used fragment if not the initial fragment
+        if(lastmode!=0) {
+            switchfragment(lastmode);
+        }
 
     }
 
@@ -345,9 +368,9 @@ public class MultipadActivity extends Activity
                 if(mMultipadFragment==null) mMultipadFragment=new MultipadFragment();
                 ft.replace(R.id.fragment_block, mMultipadFragment, TAG);
                 ft.commit();
+                currentMode=mode;
                 break;
         }
-        currentMode=mode;
     }
 
     // =====================================================================================
@@ -404,6 +427,11 @@ public class MultipadActivity extends Activity
         mTextstatus_bottom.setText(texte);
         logbuffer.insert(0, texte + "\n");
         if (logbuffer.length() > 1000) logbuffer.setLength(1000);
+        logschanged(logbuffer.toString());
+    }
+
+    private void logschanged(String text) {
+        if(currentMode==0 && mMultipadFragment != null) mMultipadFragment.logschanged(text);
     }
 
     // =========================================================================
@@ -436,7 +464,7 @@ public class MultipadActivity extends Activity
 
     public void speak(String texte) {
         initspeak();
-        if(tts!=null) tts.speak(texte, TextToSpeech.QUEUE_ADD, null);
+        if(tts!=null) tts.speak(texte, TextToSpeech.QUEUE_FLUSH, null);
         say("Speaked: "+texte);
     }
 
@@ -524,23 +552,37 @@ public class MultipadActivity extends Activity
             for (int i = 0; i < dutexte.size(); ++i) {
                 String mSentence = dutexte.get(i);
                 if (matchvoice(mSentence)) {
-                    say("Understood: " + mSentence);
+                    //say("Understood: " + mSentence);
                     return;
                 }
             }
-            say("Understood: " + dutexte.get(0));
-            speak(dutexte.get(0));
+            //say("Understood: " + dutexte.get(0));
+            //speak(dutexte.get(0));
+            understood(dutexte.get(0));
         }
     }
 
+    // try to match some main commands
     private boolean matchvoice(String textein) {
         String texte = textein.toLowerCase();
         if (texte.contains("fuck") || texte.contains("shit")) {
+            say("Understood Fuck!");
             playsound(R.raw.donotaddressthisunitinthatmanner_clean);
+            return(true);
+        }
+        if(texte.contains("hello")) {
+            say("Understood Hello!");
+            speak("Welcome to the Multipad");
             return(true);
         }
         return(false);
     }
+
+    // send to fragment to interpret the sentence pronounced by the user in the listen function
+    private void understood(String text) {
+        if(currentMode==0 && mMultipadFragment!=null) mMultipadFragment.understood(text);
+    }
+
 
 
     // =====================================================================================
