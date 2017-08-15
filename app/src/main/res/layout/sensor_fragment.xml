@@ -16,6 +16,14 @@
         android:textSize="24sp"
         android:text="Fragment Sensor"/>
 
+    <LinearLayout
+        android:id="@+id/sensor_layout"
+        android:layout_width="match_parent"
+        android:layout_height="200dp"
+        android:orientation="vertical">
+
+    </LinearLayout>
+
     <Button
         android:id="@+id/back_button"
         android:layout_width="match_parent"

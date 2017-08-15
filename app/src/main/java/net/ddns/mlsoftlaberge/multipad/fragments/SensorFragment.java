@@ -24,9 +24,14 @@ package net.ddns.mlsoftlaberge.multipad.fragments;
 
 import android.app.Activity;
 import android.app.Fragment;
+import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.graphics.Typeface;
+import android.hardware.SensorManager;
+import android.location.LocationManager;
 import android.media.MediaPlayer;
+import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.text.method.ScrollingMovementMethod;
@@ -34,9 +39,13 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import net.ddns.mlsoftlaberge.multipad.R;
+import net.ddns.mlsoftlaberge.multipad.sensors.MagSensorView;
+import net.ddns.mlsoftlaberge.multipad.sensors.OriSensorView;
 
 import java.util.ArrayList;
 
@@ -94,6 +103,20 @@ public class SensorFragment extends Fragment {
     private TextView mLogsConsole;
 
 
+
+    // handle for the gps
+    private LocationManager mLocationManager = null;
+
+    // the handle to the sensors
+    private SensorManager mSensorManager;
+
+    private LinearLayout mSensorLayout;
+
+    // the new scope class
+    private MagSensorView mMagSensorView;
+
+    private OriSensorView mOriSensorView;
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.sensor_fragment, container, false);
@@ -105,6 +128,39 @@ public class SensorFragment extends Fragment {
 
         // the title of the fragment
         mFragmentTitle = (TextView) view.findViewById(R.id.fragment_title);
+
+        // ============== create a sensor display and incorporate in layout ==============
+        // create layout params for the created views
+        final LinearLayout.LayoutParams tlayoutParams =
+                new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+                        ViewGroup.LayoutParams.MATCH_PARENT);
+
+        mSensorLayout = (LinearLayout) view.findViewById(R.id.sensor_layout);
+
+        // a sensor manager to obtain sensors data
+        mSensorManager = (SensorManager) getActivity().getSystemService(getActivity().SENSOR_SERVICE);
+
+        // a gps manager to obtain gps data
+        mLocationManager = (LocationManager) getActivity().getSystemService(getActivity().LOCATION_SERVICE);
+
+        // my sensorview that display the sensors data
+        mMagSensorView = new MagSensorView(getActivity(), mSensorManager);
+        // add my sensorview to the layout 1
+        mSensorLayout.addView(mMagSensorView, tlayoutParams);
+
+        // my sensorview that display the sensors data
+        mOriSensorView = new OriSensorView(getActivity(), mSensorManager, mLocationManager);
+        mOriSensorView.setClickable(true);
+        mOriSensorView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                googlemapactivity();
+                buttonsound();
+            }
+        });
+        // add my sensorview to the layout 1
+        mSensorLayout.addView(mOriSensorView, tlayoutParams);
+
 
         // the back button
         mBackButton = (Button) view.findViewById(R.id.back_button);
@@ -135,6 +191,14 @@ public class SensorFragment extends Fragment {
         mLogsConsole.setVerticalScrollBarEnabled(true);
         mLogsConsole.setMovementMethod(new ScrollingMovementMethod());
         mLogsConsole.setText(mOnSensorInteractionListener.sensorLogs());
+
+        // start all sensors
+        mMagSensorView.start();
+        mOriSensorView.start();
+
+        // select one sensor to view on start
+        mMagSensorView.setVisibility(View.GONE);
+        mOriSensorView.setVisibility(View.VISIBLE);
 
         // return the view just initialized
         return view;
@@ -231,5 +295,37 @@ public class SensorFragment extends Fragment {
     public void logschanged(String logs) {
         mLogsConsole.setText(logs);
     }
+
+    // =========================================================================================
+    // map activity to see where we are on the map of this planet
+
+    public void googlemapactivity() {
+        float longitude = mOriSensorView.getLongitude();
+        float latitude = mOriSensorView.getLatitude();
+
+        String geopath = "geo:" + String.valueOf(latitude) + "," + String.valueOf(longitude);
+        Uri geouri = Uri.parse(geopath);
+        say("Open planetary mapping");
+        say(geopath);
+        final Intent viewIntent = new Intent(Intent.ACTION_VIEW, geouri);
+        // A PackageManager instance is needed to verify that there's a default app
+        // that handles ACTION_VIEW and a geo Uri.
+        final PackageManager packageManager = getActivity().getPackageManager();
+        // Checks for an activity that can handle this intent. Preferred in this
+        // case over Intent.createChooser() as it will still let the user choose
+        // a default (or use a previously set default) for geo Uris.
+        if (packageManager.resolveActivity(
+                viewIntent, PackageManager.MATCH_DEFAULT_ONLY) != null) {
+            // Toast.makeText(getActivity(),
+            //        R.string.yes_intent_found, Toast.LENGTH_SHORT).show();
+            startActivity(viewIntent);
+        } else {
+            // If no default is found, displays a message that no activity can handle
+            // the view button.
+            Toast.makeText(getActivity(), "No application for mapping.", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+
 
 }
