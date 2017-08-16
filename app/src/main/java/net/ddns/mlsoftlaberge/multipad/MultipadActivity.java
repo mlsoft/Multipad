@@ -290,7 +290,7 @@ public class MultipadActivity extends Activity
                 mRunStatus = true;
                 say("Started");
                 if(isChatty) speak("Start");
-                //startsensors(mSensormode);
+                startsensors();
             }
         });
 
@@ -303,7 +303,7 @@ public class MultipadActivity extends Activity
                 mRunStatus = false;
                 say("Stopped");
                 if(isChatty) speak("Stop");
-                //stopsensors();
+                stopsensors();
             }
         });
 
@@ -327,9 +327,10 @@ public class MultipadActivity extends Activity
         mExitButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                buttonsound();
+                buttonbad();
                 say("Exit");
                 if(isChatty) speak("Exit");
+                finish();
             }
         });
 
@@ -501,6 +502,14 @@ public class MultipadActivity extends Activity
                 currentMode=mode;
                 break;
         }
+    }
+
+    private void startsensors() {
+        if(currentMode==1 && mSensorFragment!=null) mSensorFragment.startsensors();
+    }
+
+    private void stopsensors() {
+        if(currentMode==1 && mSensorFragment!=null) mSensorFragment.stopsensors();
     }
 
     // =====================================================================================

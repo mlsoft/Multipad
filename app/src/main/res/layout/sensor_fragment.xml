@@ -6,67 +6,142 @@
     android:orientation="vertical"
     android:weightSum="100">
 
-    <TextView
-        android:id="@+id/fragment_title"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textAlignment="center"
-        android:textColor="@android:color/white"
-        android:textStyle="bold"
-        android:textSize="24sp"
-        android:text="Fragment Sensor"/>
+        android:orientation="horizontal">
 
-    <LinearLayout
-        android:id="@+id/sensor_layout"
-        android:layout_width="match_parent"
-        android:layout_height="200dp"
-        android:orientation="vertical">
+        <Button
+            android:id="@+id/magnetic_button"
+            android:layout_width="0dp"
+            android:layout_height="32dp"
+            android:layout_gravity="center"
+            android:layout_marginEnd="2dp"
+            android:layout_marginStart="2dp"
+            android:layout_weight="1"
+            android:background="@drawable/trekbutton_yellow"
+            android:maxLines="1"
+            android:text="Magnetic"
+            android:textSize="18sp" />
+
+        <Button
+            android:id="@+id/orientation_button"
+            android:layout_width="0dp"
+            android:layout_height="32dp"
+            android:layout_gravity="center"
+            android:layout_marginEnd="2dp"
+            android:layout_marginStart="2dp"
+            android:layout_weight="1"
+            android:background="@drawable/trekbutton_yellow"
+            android:maxLines="1"
+            android:text="Orientation"
+            android:textSize="18sp" />
+
+        <Button
+            android:id="@+id/gravity_button"
+            android:layout_width="0dp"
+            android:layout_height="32dp"
+            android:layout_gravity="center"
+            android:layout_marginEnd="2dp"
+            android:layout_marginStart="2dp"
+            android:layout_weight="1"
+            android:background="@drawable/trekbutton_yellow"
+            android:maxLines="1"
+            android:text="Gravity"
+            android:textSize="18sp" />
+
+        <Button
+            android:id="@+id/temperature_button"
+            android:layout_width="0dp"
+            android:layout_height="32dp"
+            android:layout_gravity="center"
+            android:layout_marginEnd="2dp"
+            android:layout_marginStart="2dp"
+            android:layout_weight="1"
+            android:background="@drawable/trekbutton_yellow"
+            android:maxLines="1"
+            android:text="Temperature"
+            android:textSize="18sp" />
+
+        <Button
+            android:id="@+id/audio_button"
+            android:layout_width="0dp"
+            android:layout_height="32dp"
+            android:layout_gravity="center"
+            android:layout_marginEnd="2dp"
+            android:layout_marginStart="2dp"
+            android:layout_weight="1"
+            android:background="@drawable/trekbutton_yellow"
+            android:maxLines="1"
+            android:text="Audio"
+            android:textSize="18sp" />
 
     </LinearLayout>
 
-    <Button
-        android:id="@+id/back_button"
-        android:layout_width="match_parent"
-        android:layout_height="32dp"
-        android:layout_gravity="center"
-        android:layout_marginEnd="2dp"
-        android:layout_marginStart="2dp"
-        android:background="@drawable/trekbutton_indigo"
-        android:maxLines="1"
-        android:text="Back"
-        android:textSize="18sp" />
-
-    <Button
-        android:id="@+id/listen_button"
-        android:layout_width="match_parent"
-        android:layout_height="32dp"
-        android:layout_gravity="center"
-        android:layout_marginEnd="2dp"
-        android:layout_marginStart="2dp"
-        android:background="@drawable/trekbutton_vert"
-        android:maxLines="1"
-        android:text="Listen"
-        android:textSize="18sp" />
-
     <ScrollView
-        android:id="@+id/view_console"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:visibility="visible">
+        android:layout_height="match_parent">
 
-        <TextView
-            android:id="@+id/logs_console"
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:text="Console log"
-            android:scrollHorizontally="true"
-            android:scrollbars="horizontal"
-            android:textColor="@android:color/holo_green_light"
-            android:textSize="18sp"
-            android:textStyle="bold"
-            android:visibility="visible" />
+            android:layout_height="200dp"
+            android:orientation="vertical">
+
+
+            <LinearLayout
+                android:id="@+id/magnetic_layout"
+                android:layout_width="match_parent"
+                android:layout_height="200dp"
+                android:orientation="vertical">
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/orientation_layout"
+                android:layout_width="match_parent"
+                android:layout_height="200dp"
+                android:orientation="vertical">
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/gravity_layout"
+                android:layout_width="match_parent"
+                android:layout_height="200dp"
+                android:orientation="vertical">
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/temperature_layout"
+                android:layout_width="match_parent"
+                android:layout_height="200dp"
+                android:orientation="vertical">
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/audio_layout"
+                android:layout_width="match_parent"
+                android:layout_height="200dp"
+                android:orientation="vertical">
+
+            </LinearLayout>
+
+            <TextView
+                    android:id="@+id/logs_console"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:scrollHorizontally="true"
+                    android:scrollbars="horizontal"
+                    android:text="Console log"
+                    android:textColor="@android:color/holo_green_light"
+                    android:textSize="18sp"
+                    android:textStyle="bold"
+                    android:visibility="visible" />
+
+        </LinearLayout>
 
     </ScrollView>
-
 
 </LinearLayout>

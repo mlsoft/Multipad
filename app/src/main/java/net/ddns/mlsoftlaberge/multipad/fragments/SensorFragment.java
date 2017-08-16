@@ -44,8 +44,11 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import net.ddns.mlsoftlaberge.multipad.R;
+import net.ddns.mlsoftlaberge.multipad.sensors.AudSensorView;
+import net.ddns.mlsoftlaberge.multipad.sensors.GraSensorView;
 import net.ddns.mlsoftlaberge.multipad.sensors.MagSensorView;
 import net.ddns.mlsoftlaberge.multipad.sensors.OriSensorView;
+import net.ddns.mlsoftlaberge.multipad.sensors.TemSensorView;
 
 import java.util.ArrayList;
 
@@ -62,10 +65,15 @@ public class SensorFragment extends Fragment {
     // interface between fragment and activity to define callbacks
     public interface OnSensorInteractionListener {
         void sensorButtonsound();
+
         void sensorModeChange(int mode);
+
         void sensorSay(String text);
+
         String sensorLogs();
+
         void sensorSpeak(String text);
+
         void sensorListen();
     }
 
@@ -92,30 +100,42 @@ public class SensorFragment extends Fragment {
 
     private boolean isChatty;
 
-    // the handles for the widgets of the fragment
-    // -------------------------------------------
-    private TextView mFragmentTitle;
-
-    private Button mBackButton;
-
-    private Button mListenButton;
-
-    private TextView mLogsConsole;
-
-
-
     // handle for the gps
     private LocationManager mLocationManager = null;
 
     // the handle to the sensors
     private SensorManager mSensorManager;
 
-    private LinearLayout mSensorLayout;
+    // the handles for the widgets of the fragment
+    // -------------------------------------------
 
-    // the new scope class
+    private Button mMagneticButton;
+    private LinearLayout mMagneticLayout;
     private MagSensorView mMagSensorView;
+    private boolean mMagneticStatus = false;
 
+    private Button mOrientationButton;
+    private LinearLayout mOrientationLayout;
     private OriSensorView mOriSensorView;
+    private boolean mOrientationStatus = false;
+
+    private Button mGravityButton;
+    private LinearLayout mGravityLayout;
+    private GraSensorView mGraSensorView;
+    private boolean mGravityStatus = false;
+
+    private Button mTemperatureButton;
+    private LinearLayout mTemperatureLayout;
+    private TemSensorView mTemSensorView;
+    private boolean mTemperatureStatus = false;
+
+    private Button mAudioButton;
+    private LinearLayout mAudioLayout;
+    private AudSensorView mAudSensorView;
+    private boolean mAudioStatus = false;
+
+    private TextView mLogsConsole;
+
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -124,18 +144,20 @@ public class SensorFragment extends Fragment {
         PreferenceManager.setDefaultValues(getActivity(), R.xml.preferences, false);
 
         sharedPref = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        // global preference from preference screen
         isChatty = sharedPref.getBoolean("pref_key_ischatty", false);
+        // local preferences for the fragment
+        mMagneticStatus = sharedPref.getBoolean("pref_key_magnetic_status", false);
+        mOrientationStatus = sharedPref.getBoolean("pref_key_orientation_status", false);
+        mGravityStatus = sharedPref.getBoolean("pref_key_gravity_status", false);
+        mTemperatureStatus = sharedPref.getBoolean("pref_key_temperature_status", false);
+        mAudioStatus = sharedPref.getBoolean("pref_key_audio_status", false);
 
-        // the title of the fragment
-        mFragmentTitle = (TextView) view.findViewById(R.id.fragment_title);
-
-        // ============== create a sensor display and incorporate in layout ==============
+        // ============== Prepare the managers for sensors widgets ==============
         // create layout params for the created views
         final LinearLayout.LayoutParams tlayoutParams =
                 new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
                         ViewGroup.LayoutParams.MATCH_PARENT);
-
-        mSensorLayout = (LinearLayout) view.findViewById(R.id.sensor_layout);
 
         // a sensor manager to obtain sensors data
         mSensorManager = (SensorManager) getActivity().getSystemService(getActivity().SENSOR_SERVICE);
@@ -143,11 +165,62 @@ public class SensorFragment extends Fragment {
         // a gps manager to obtain gps data
         mLocationManager = (LocationManager) getActivity().getSystemService(getActivity().LOCATION_SERVICE);
 
+        // =============== the buttons to control the sensors display ================
+
+        // the magnetic button
+        mMagneticButton = (Button) view.findViewById(R.id.magnetic_button);
+        mMagneticButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // do the job
+                buttonsound();
+                say("Magnetic sensors");
+                if (isChatty) speak("Magnetic");
+                if (mMagneticStatus) {
+                    mMagneticStatus = false;
+                    mMagneticLayout.setVisibility(View.GONE);
+                    mMagneticButton.setBackgroundResource(R.drawable.trekbutton_gray);
+                    mMagSensorView.stop();
+                } else {
+                    mMagneticStatus = true;
+                    mMagneticLayout.setVisibility(View.VISIBLE);
+                    mMagneticButton.setBackgroundResource(R.drawable.trekbutton_yellow);
+                    mMagSensorView.start();
+                }
+            }
+        });
+        // ============== create a sensor display and incorporate in layout ==============
+        mMagneticLayout = (LinearLayout) view.findViewById(R.id.magnetic_layout);
         // my sensorview that display the sensors data
         mMagSensorView = new MagSensorView(getActivity(), mSensorManager);
         // add my sensorview to the layout 1
-        mSensorLayout.addView(mMagSensorView, tlayoutParams);
+        mMagneticLayout.addView(mMagSensorView, tlayoutParams);
 
+
+        // the orientation button
+        mOrientationButton = (Button) view.findViewById(R.id.orientation_button);
+        mOrientationButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // do the job
+                buttonsound();
+                say("Orientation sensors");
+                if (isChatty) speak("Orientation");
+                if (mOrientationStatus) {
+                    mOrientationStatus = false;
+                    mOrientationLayout.setVisibility(View.GONE);
+                    mOrientationButton.setBackgroundResource(R.drawable.trekbutton_gray);
+                    mOriSensorView.stop();
+                } else {
+                    mOrientationStatus = true;
+                    mOrientationLayout.setVisibility(View.VISIBLE);
+                    mOrientationButton.setBackgroundResource(R.drawable.trekbutton_yellow);
+                    mOriSensorView.start();
+                }
+            }
+        });
+        // ============== create a sensor display and incorporate in layout ==============
+        mOrientationLayout = (LinearLayout) view.findViewById(R.id.orientation_layout);
         // my sensorview that display the sensors data
         mOriSensorView = new OriSensorView(getActivity(), mSensorManager, mLocationManager);
         mOriSensorView.setClickable(true);
@@ -159,32 +232,100 @@ public class SensorFragment extends Fragment {
             }
         });
         // add my sensorview to the layout 1
-        mSensorLayout.addView(mOriSensorView, tlayoutParams);
+        mOrientationLayout.addView(mOriSensorView, tlayoutParams);
 
 
-        // the back button
-        mBackButton = (Button) view.findViewById(R.id.back_button);
-        mBackButton.setOnClickListener(new View.OnClickListener() {
+        // the gravity button
+        mGravityButton = (Button) view.findViewById(R.id.gravity_button);
+        mGravityButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 // do the job
                 buttonsound();
-                say("The BACK button is pressed");
-                if(isChatty) speak("back");
-                modechange(0);
+                say("Gravity sensors");
+                if (isChatty) speak("Gravity");
+                if (mGravityStatus) {
+                    mGravityStatus = false;
+                    mGravityLayout.setVisibility(View.GONE);
+                    mGravityButton.setBackgroundResource(R.drawable.trekbutton_gray);
+                    mGraSensorView.stop();
+                } else {
+                    mGravityStatus = true;
+                    mGravityLayout.setVisibility(View.VISIBLE);
+                    mGravityButton.setBackgroundResource(R.drawable.trekbutton_yellow);
+                    mGraSensorView.start();
+                }
             }
         });
+        // ============== create a sensor display and incorporate in layout ==============
+        mGravityLayout = (LinearLayout) view.findViewById(R.id.gravity_layout);
+        // my sensorview that display the sensors data
+        mGraSensorView = new GraSensorView(getActivity(), mSensorManager);
+        // add my sensorview to the layout 1
+        mGravityLayout.addView(mGraSensorView, tlayoutParams);
 
-        // the listen button
-        mListenButton = (Button) view.findViewById(R.id.listen_button);
-        mListenButton.setOnClickListener(new View.OnClickListener() {
+
+        // the temperature button
+        mTemperatureButton = (Button) view.findViewById(R.id.temperature_button);
+        mTemperatureButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 // do the job
-                listen();
+                buttonsound();
+                say("Temperature sensors");
+                if (isChatty) speak("Temperature");
+                if (mTemperatureStatus) {
+                    mTemperatureStatus = false;
+                    mTemperatureLayout.setVisibility(View.GONE);
+                    mTemperatureButton.setBackgroundResource(R.drawable.trekbutton_gray);
+                    mTemSensorView.stop();
+                } else {
+                    mTemperatureStatus = true;
+                    mTemperatureLayout.setVisibility(View.VISIBLE);
+                    mTemperatureButton.setBackgroundResource(R.drawable.trekbutton_yellow);
+                    mTemSensorView.start();
+                }
             }
         });
+        // ============== create a sensor display and incorporate in layout ==============
+        mTemperatureLayout = (LinearLayout) view.findViewById(R.id.temperature_layout);
+        // my sensorview that display the sensors data
+        mTemSensorView = new TemSensorView(getActivity(), mSensorManager);
+        // add my sensorview to the layout 1
+        mTemperatureLayout.addView(mTemSensorView, tlayoutParams);
 
+
+        // the audio button
+        mAudioButton = (Button) view.findViewById(R.id.audio_button);
+        mAudioButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // do the job
+                buttonsound();
+                say("Audio sensors");
+                if (isChatty) speak("Audio");
+                if (mAudioStatus) {
+                    mAudioStatus = false;
+                    mAudioLayout.setVisibility(View.GONE);
+                    mAudioButton.setBackgroundResource(R.drawable.trekbutton_gray);
+                    mAudSensorView.stop();
+                } else {
+                    mAudioStatus = true;
+                    mAudioLayout.setVisibility(View.VISIBLE);
+                    mAudioButton.setBackgroundResource(R.drawable.trekbutton_yellow);
+                    mAudSensorView.start();
+                }
+            }
+        });
+        // ============== create a sensor display and incorporate in layout ==============
+        mAudioLayout = (LinearLayout) view.findViewById(R.id.audio_layout);
+        // my sensorview that display the sensors data
+        mAudSensorView = new AudSensorView(getActivity());
+        // add my sensorview to the layout 1
+        mAudioLayout.addView(mAudSensorView, tlayoutParams);
+
+
+        // =============== the console logs of the application ===================
         // the console to display logs history
         mLogsConsole = (TextView) view.findViewById(R.id.logs_console);
         mLogsConsole.setHorizontallyScrolling(true);
@@ -192,14 +333,7 @@ public class SensorFragment extends Fragment {
         mLogsConsole.setMovementMethod(new ScrollingMovementMethod());
         mLogsConsole.setText(mOnSensorInteractionListener.sensorLogs());
 
-        // start all sensors
-        mMagSensorView.start();
-        mOriSensorView.start();
-
-        // select one sensor to view on start
-        mMagSensorView.setVisibility(View.GONE);
-        mOriSensorView.setVisibility(View.VISIBLE);
-
+        // ================================
         // return the view just initialized
         return view;
 
@@ -213,9 +347,12 @@ public class SensorFragment extends Fragment {
         Typeface face2 = Typeface.createFromAsset(getActivity().getAssets(), "finalold.ttf");
         Typeface face3 = Typeface.createFromAsset(getActivity().getAssets(), "finalnew.ttf");
         // top buttons
-        mFragmentTitle.setTypeface(face3);
-        mBackButton.setTypeface(face2);
-        mListenButton.setTypeface(face3);
+        mMagneticButton.setTypeface(face2);
+        mOrientationButton.setTypeface(face2);
+        mGravityButton.setTypeface(face2);
+        mTemperatureButton.setTypeface(face2);
+        mAudioButton.setTypeface(face2);
+        // bottom logs console
         mLogsConsole.setTypeface(face1);
     }
 
@@ -226,17 +363,99 @@ public class SensorFragment extends Fragment {
         super.onResume();
         // settings part of the preferences
         isChatty = sharedPref.getBoolean("pref_key_ischatty", false);
+        // local preferences for the fragment
+        mMagneticStatus = sharedPref.getBoolean("pref_key_magnetic_status", false);
+        mOrientationStatus = sharedPref.getBoolean("pref_key_orientation_status", false);
+        mGravityStatus = sharedPref.getBoolean("pref_key_gravity_status", false);
+        mTemperatureStatus = sharedPref.getBoolean("pref_key_temperature_status", false);
+        mAudioStatus = sharedPref.getBoolean("pref_key_audio_status", false);
+
+        // ======================================
+        // select all sensors to view on start
+        if (mMagneticStatus) {
+            mMagneticLayout.setVisibility(View.VISIBLE);
+            mMagneticButton.setBackgroundResource(R.drawable.trekbutton_yellow);
+            mMagSensorView.start();
+        } else {
+            mMagneticLayout.setVisibility(View.GONE);
+            mMagneticButton.setBackgroundResource(R.drawable.trekbutton_gray);
+            mMagSensorView.stop();
+        }
+        if (mOrientationStatus) {
+            mOrientationLayout.setVisibility(View.VISIBLE);
+            mOrientationButton.setBackgroundResource(R.drawable.trekbutton_yellow);
+            mOriSensorView.start();
+        } else {
+            mOrientationLayout.setVisibility(View.GONE);
+            mOrientationButton.setBackgroundResource(R.drawable.trekbutton_gray);
+            mOriSensorView.stop();
+        }
+        if (mGravityStatus) {
+            mGravityLayout.setVisibility(View.VISIBLE);
+            mGravityButton.setBackgroundResource(R.drawable.trekbutton_yellow);
+            mGraSensorView.start();
+        } else {
+            mGravityLayout.setVisibility(View.GONE);
+            mGravityButton.setBackgroundResource(R.drawable.trekbutton_gray);
+            mGraSensorView.stop();
+        }
+        if (mTemperatureStatus) {
+            mTemperatureLayout.setVisibility(View.VISIBLE);
+            mTemperatureButton.setBackgroundResource(R.drawable.trekbutton_yellow);
+            mTemSensorView.start();
+        } else {
+            mTemperatureLayout.setVisibility(View.GONE);
+            mTemperatureButton.setBackgroundResource(R.drawable.trekbutton_gray);
+            mTemSensorView.stop();
+        }
+        if (mAudioStatus) {
+            mAudioLayout.setVisibility(View.VISIBLE);
+            mAudioButton.setBackgroundResource(R.drawable.trekbutton_yellow);
+            mAudSensorView.start();
+        } else {
+            mAudioLayout.setVisibility(View.GONE);
+            mAudioButton.setBackgroundResource(R.drawable.trekbutton_gray);
+            mAudSensorView.stop();
+        }
+
+
     }
 
     @Override
     public void onPause() {
+        // stop all sensors
+        stopsensors();
+
         // save the current status
-        //SharedPreferences.Editor editor = sharedPref.edit();
-        //editor.putBoolean("pref_key_ischatty", isChatty);
-        //editor.commit();
+        SharedPreferences.Editor editor = sharedPref.edit();
+        editor.putBoolean("pref_key_magnetic_status", mMagneticStatus);
+        editor.putBoolean("pref_key_orientation_status", mOrientationStatus);
+        editor.putBoolean("pref_key_gravity_status", mGravityStatus);
+        editor.putBoolean("pref_key_temperature_status", mTemperatureStatus);
+        editor.putBoolean("pref_key_audio_status", mAudioStatus);
+        editor.commit();
+
         super.onPause();
     }
 
+    // =====================================================================================
+    // start and stop all sensors at once
+
+    public void startsensors() {
+        mMagSensorView.start();
+        mOriSensorView.start();
+        mGraSensorView.start();
+        mTemSensorView.start();
+        mAudSensorView.start();
+    }
+
+    public void stopsensors() {
+        mMagSensorView.stop();
+        mOriSensorView.stop();
+        mGraSensorView.stop();
+        mTemSensorView.stop();
+        mAudSensorView.stop();
+    }
     // =====================================================================================
 
     // beep
@@ -282,12 +501,12 @@ public class SensorFragment extends Fragment {
     // try to match some fragment commands
     private boolean matchvoice(String textein) {
         String texte = textein.toLowerCase();
-        if(texte.contains("test")) {
+        if (texte.contains("test")) {
             say("Understood 'Test'");
             speak("This is Fragment one");
-            return(true);
+            return (true);
         }
-        return(false);
+        return (false);
     }
 
 
@@ -314,10 +533,8 @@ public class SensorFragment extends Fragment {
         // Checks for an activity that can handle this intent. Preferred in this
         // case over Intent.createChooser() as it will still let the user choose
         // a default (or use a previously set default) for geo Uris.
-        if (packageManager.resolveActivity(
-                viewIntent, PackageManager.MATCH_DEFAULT_ONLY) != null) {
-            // Toast.makeText(getActivity(),
-            //        R.string.yes_intent_found, Toast.LENGTH_SHORT).show();
+        if (packageManager.resolveActivity(viewIntent, PackageManager.MATCH_DEFAULT_ONLY) != null) {
+            Toast.makeText(getActivity(), "Start Mapping Application", Toast.LENGTH_SHORT).show();
             startActivity(viewIntent);
         } else {
             // If no default is found, displays a message that no activity can handle
@@ -325,7 +542,6 @@ public class SensorFragment extends Fragment {
             Toast.makeText(getActivity(), "No application for mapping.", Toast.LENGTH_SHORT).show();
         }
     }
-
 
 
 }
