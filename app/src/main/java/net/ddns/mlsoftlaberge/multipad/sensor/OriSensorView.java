@@ -1,4 +1,4 @@
-package net.ddns.mlsoftlaberge.multipad.sensors;
+package net.ddns.mlsoftlaberge.multipad.sensor;
 
 /*
 *  By Martin Laberge (mlsoft), From March 2016 to november 2016.
@@ -23,7 +23,6 @@ package net.ddns.mlsoftlaberge.multipad.sensors;
 */
 
 import android.content.Context;
-import android.content.Intent;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -36,7 +35,6 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
-import android.provider.Settings;
 import android.widget.TextView;
 
 /**

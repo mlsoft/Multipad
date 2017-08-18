@@ -1,4 +1,4 @@
-package net.ddns.mlsoftlaberge.multipad.fragments;
+package net.ddns.mlsoftlaberge.multipad.communication;
 
 /*
 *  By Martin Laberge (mlsoftlaberge@gmail.com), From August 2017 to Now.

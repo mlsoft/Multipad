@@ -1,4 +1,4 @@
-package net.ddns.mlsoftlaberge.multipad.sensors;
+package net.ddns.mlsoftlaberge.multipad.sensor;
 
 /*
 *  By Martin Laberge (mlsoft), From March 2016 to november 2016.

@@ -1,4 +1,4 @@
-package net.ddns.mlsoftlaberge.multipad.sensors;
+package net.ddns.mlsoftlaberge.multipad.sensor;
 
 /*
 *  By Martin Laberge (mlsoft), From March 2016 to november 2016.
@@ -38,7 +38,7 @@ import android.widget.TextView;
  */
 // ============================================================================
 // class defining the sensor display widget
-public class MagSensorView extends TextView implements SensorEventListener {
+public class GraSensorView extends TextView implements SensorEventListener {
 
     private Bitmap mBitmap;
     private Paint mPaint = new Paint();
@@ -59,7 +59,7 @@ public class MagSensorView extends TextView implements SensorEventListener {
     private SensorManager mSensorManager;
 
     // initialize the 3 colors, and setup painter
-    public MagSensorView(Context context,SensorManager manager) {
+    public GraSensorView(Context context, SensorManager manager) {
         super(context);
         mContext=context;
         mSensorManager=manager;
@@ -79,7 +79,7 @@ public class MagSensorView extends TextView implements SensorEventListener {
 
     public void start() {
         mSensorManager.registerListener(this,
-                mSensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD),
+                mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER),
                 SensorManager.SENSOR_DELAY_FASTEST);
     }
 
@@ -126,7 +126,7 @@ public class MagSensorView extends TextView implements SensorEventListener {
                 mPaint.setAntiAlias(true);
                 mPaint.setTextSize(20);
                 mPaint.setStyle(Paint.Style.STROKE);
-                mCanvas.drawText("Magnetic",10,20,mPaint);
+                mCanvas.drawText("Gravity",10,20,mPaint);
                 // draw the 100 values x 3 rows
                 for (int i = 0; i < nbValues - 1; ++i) {
                     for (int j = 0; j < 3; ++j) {
@@ -149,7 +149,7 @@ public class MagSensorView extends TextView implements SensorEventListener {
     public void onSensorChanged(SensorEvent event) {
         synchronized (this) {
             if (mBitmap != null) {
-                if (event.sensor.getType() == Sensor.TYPE_MAGNETIC_FIELD) {
+                if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
                     // scroll left when full
                     if (nbValues >= MAXVALUES) {
                         for (int i = 0; i < (MAXVALUES * 3) - 1; ++i) {
@@ -159,7 +159,7 @@ public class MagSensorView extends TextView implements SensorEventListener {
                     }
                     // fill the 3 elements in the table
                     for (int i = 0; i < 3; ++i) {
-                        final float v = mYOffset + event.values[i] * mScale;
+                        final float v = mYOffset + event.values[i] * mScale*20;
                         mValues[nbValues + (i * MAXVALUES)] = v;
                     }
                     nbValues++;
@@ -174,5 +174,4 @@ public class MagSensorView extends TextView implements SensorEventListener {
     }
 
 }
-
 

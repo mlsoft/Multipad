@@ -1,4 +1,4 @@
-package net.ddns.mlsoftlaberge.multipad.fragments;
+package net.ddns.mlsoftlaberge.multipad.sensor;
 
 /*
 *  By Martin Laberge (mlsoftlaberge@gmail.com), From August 2017 to Now.
@@ -30,7 +30,6 @@ import android.content.pm.PackageManager;
 import android.graphics.Typeface;
 import android.hardware.SensorManager;
 import android.location.LocationManager;
-import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -44,11 +43,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import net.ddns.mlsoftlaberge.multipad.R;
-import net.ddns.mlsoftlaberge.multipad.sensors.AudSensorView;
-import net.ddns.mlsoftlaberge.multipad.sensors.GraSensorView;
-import net.ddns.mlsoftlaberge.multipad.sensors.MagSensorView;
-import net.ddns.mlsoftlaberge.multipad.sensors.OriSensorView;
-import net.ddns.mlsoftlaberge.multipad.sensors.TemSensorView;
 
 import java.util.ArrayList;
 

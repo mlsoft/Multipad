@@ -1,19 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
-<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+<PreferenceScreen
+    xmlns:android="http://schemas.android.com/apk/res/android">
 
     <PreferenceCategory
-        android:title="Multipad"
-        android:key="pref_key_main_settings">
+        android:key="pref_key_main_settings"
+        android:title="Multipad">
         <CheckBoxPreference
+            android:defaultValue="false"
             android:key="pref_key_ischatty"
             android:summary="Determine if the speak function is chatty"
-            android:title="Speak more often"
-            android:defaultValue="false" />
+            android:title="Speak more often" />
         <CheckBoxPreference
+            android:defaultValue="false"
             android:key="pref_key_auto_listen"
             android:summary="Determine if the listen function is looping"
-            android:title="Automatic loop"
-            android:defaultValue="false" />
+            android:textColor="@android:color/white"
+            android:textColorHint="@android:color/white"
+            android:title="Automatic loop" />
     </PreferenceCategory>
 
 </PreferenceScreen>

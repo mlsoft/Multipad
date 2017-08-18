@@ -43,9 +43,10 @@ import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
-import net.ddns.mlsoftlaberge.multipad.fragments.CommunicationFragment;
-import net.ddns.mlsoftlaberge.multipad.fragments.SensorFragment;
+import net.ddns.mlsoftlaberge.multipad.communication.CommunicationFragment;
+import net.ddns.mlsoftlaberge.multipad.sensor.SensorFragment;
 import net.ddns.mlsoftlaberge.multipad.settings.SettingsActivity;
+import net.ddns.mlsoftlaberge.multipad.settings.SettingsFragment;
 
 import java.util.ArrayList;
 import java.util.Locale;
@@ -162,6 +163,7 @@ public class MultipadActivity extends Activity
     private MultipadFragment mMultipadFragment=null;
     private SensorFragment mSensorFragment=null;
     private CommunicationFragment mCommunicationFragment=null;
+    private SettingsFragment mSettingsFragment=null;
 
     // current fragment mode
     private int currentMode=0;
@@ -192,8 +194,9 @@ public class MultipadActivity extends Activity
     // the button for settings
     private Button mSettingsButton;
 
-    // the chatty mode
+    // the preferences variables from preference screen
     private boolean isChatty = false;
+    private boolean autoListen = false;
 
     // the two status lines
     private TextView mTextstatus_top;
@@ -245,6 +248,7 @@ public class MultipadActivity extends Activity
         mSoundStatus = sharedPref.getBoolean("pref_key_sound_status", false);
         mRunStatus = sharedPref.getBoolean("pref_key_run_status", false);
         isChatty = sharedPref.getBoolean("pref_key_ischatty", false);
+        autoListen = sharedPref.getBoolean("pref_key_auto_listen", false);
         String logs = sharedPref.getString("pref_key_logbuffer", "");
         logbuffer.setLength(0);
         logbuffer.insert(0,logs);
@@ -313,7 +317,10 @@ public class MultipadActivity extends Activity
             @Override
             public void onClick(View view) {
                 buttonsound();
-                settingsactivity();
+                //settingsactivity();
+                say("Settings");
+                if(isChatty) speak("Settings");
+                switchfragment(99);
             }
         });
 
@@ -481,6 +488,12 @@ public class MultipadActivity extends Activity
 
     // switch fragment in the fragment block
     private void switchfragment(int mode) {
+        // reread the preferences after exiting settings
+        if(currentMode==99) {
+            isChatty = sharedPref.getBoolean("pref_key_ischatty", false);
+            autoListen = sharedPref.getBoolean("pref_key_auto_listen", false);
+        }
+        // prepare to switch to other fragment
         final FragmentTransaction ft = getFragmentManager().beginTransaction();
         switch(mode) {
             case 0:
@@ -498,6 +511,12 @@ public class MultipadActivity extends Activity
             case 2:
                 if(mCommunicationFragment==null) mCommunicationFragment=new CommunicationFragment();
                 ft.replace(R.id.fragment_block, mCommunicationFragment, TAG);
+                ft.commit();
+                currentMode=mode;
+                break;
+            case 99:
+                if(mSettingsFragment==null) mSettingsFragment=new SettingsFragment();
+                ft.replace(R.id.fragment_block, mSettingsFragment, TAG);
                 ft.commit();
                 currentMode=mode;
                 break;
