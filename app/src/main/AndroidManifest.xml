@@ -30,15 +30,6 @@
             </intent-filter>
         </activity>
 
-        <activity
-            android:name=".settings.SettingsActivity"
-            android:label="Settings"
-            android:parentActivityName=".MultipadActivity">
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value=".MultipadActivity" />
-        </activity>
-
     </application>
 
 </manifest>

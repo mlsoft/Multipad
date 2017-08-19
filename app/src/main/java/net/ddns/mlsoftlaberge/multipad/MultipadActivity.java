@@ -30,7 +30,6 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Typeface;
 import android.media.MediaPlayer;
-import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.speech.RecognitionListener;
@@ -45,7 +44,6 @@ import android.widget.TextView;
 
 import net.ddns.mlsoftlaberge.multipad.communication.CommunicationFragment;
 import net.ddns.mlsoftlaberge.multipad.sensor.SensorFragment;
-import net.ddns.mlsoftlaberge.multipad.settings.SettingsActivity;
 import net.ddns.mlsoftlaberge.multipad.settings.SettingsFragment;
 
 import java.util.ArrayList;
@@ -566,19 +564,6 @@ public class MultipadActivity extends Activity
             mSoundStatus = true;
             mSoundButton.setBackgroundResource(R.drawable.trekbutton_yellow_center);
         }
-    }
-
-    // =====================================================================================
-    // settings activity incorporation in the display
-
-    public void settingsactivity() {
-        say("Settings");
-        if (isChatty) speak("Settings");
-        // start the preferences activity
-        Intent i = new Intent(this, SettingsActivity.class);
-        startActivity(i);
-        // reload the modifiables preferences
-        isChatty = sharedPref.getBoolean("pref_key_ischatty", false);
     }
 
     // =========================================================================
