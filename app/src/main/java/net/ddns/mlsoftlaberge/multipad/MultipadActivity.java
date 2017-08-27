@@ -31,12 +31,14 @@ import android.content.pm.PackageManager;
 import android.graphics.Typeface;
 import android.media.MediaPlayer;
 import android.os.Bundle;
+import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.speech.RecognitionListener;
 import android.speech.RecognizerIntent;
 import android.speech.SpeechRecognizer;
 import android.speech.tts.TextToSpeech;
 import android.support.v4.app.ActivityCompat;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
@@ -45,7 +47,17 @@ import android.widget.TextView;
 import net.ddns.mlsoftlaberge.multipad.communication.CommunicationFragment;
 import net.ddns.mlsoftlaberge.multipad.sensor.SensorFragment;
 import net.ddns.mlsoftlaberge.multipad.settings.SettingsFragment;
+import net.ddns.mlsoftlaberge.multipad.utils.Fetcher;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
+import java.net.InetAddress;
+import java.net.Socket;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Locale;
 
@@ -332,7 +344,7 @@ public class MultipadActivity extends Activity
         mExitButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                buttonbad();
+                buttonquit();
                 say("Exit");
                 if(isChatty) speak("Exit");
                 finish();
@@ -452,7 +464,6 @@ public class MultipadActivity extends Activity
         mSensorButton.setTypeface(face1);
         mCommButton.setTypeface(face1);
 
-
         // --------------------------------------------------------------------------
         // create the 1 initial fragment
         mMultipadFragment=new MultipadFragment();
@@ -472,13 +483,24 @@ public class MultipadActivity extends Activity
 
     // save the preferences before exiting
     @Override
+    public void onStart() {
+        super.onStart();
+        // initialize the communications
+        initstarship();
+    }
+
+    // save the preferences before exiting
+    @Override
     public void onStop() {
+        // save the preferences before exiting
         SharedPreferences.Editor editor = sharedPref.edit();
         editor.putInt("pref_key_last_mode", currentMode);
         editor.putBoolean("pref_key_sound_status", mSoundStatus);
         editor.putBoolean("pref_key_run_status", mRunStatus);
         editor.putString("pref_key_logbuffer",logbuffer.toString());
         editor.commit();
+        // stop the communications
+        stopstarship();
         super.onStop();
     }
 
@@ -550,6 +572,10 @@ public class MultipadActivity extends Activity
 
     private void buttonbad() {
         playsound(R.raw.denybeep1);
+    }
+
+    private void buttonquit() {
+        playsound(R.raw.boop_beep);
     }
 
 
@@ -732,6 +758,181 @@ public class MultipadActivity extends Activity
         if(currentMode==0 && mMultipadFragment!=null) mMultipadFragment.understood(dutexte);
         if(currentMode==1 && mSensorFragment!=null) mSensorFragment.understood(dutexte);
         if(currentMode==2 && mCommunicationFragment!=null) mCommunicationFragment.understood(dutexte);
+    }
+
+
+
+    // =====================================================================================
+    // network operations.   ===   Hi Elvis!
+    // =====================================================================================
+
+
+    // ===================================================================================
+    // send a message to the other machines
+
+    public void sendtext(String text) {
+        // start the client thread
+        say("Send: " + text);
+        Thread clientThread = new Thread(new ClientThread(text));
+        clientThread.start();
+    }
+
+    class ClientThread implements Runnable {
+
+        //private Socket clientSocket = null;
+
+        private String mesg;
+
+        public ClientThread(String str) {
+            mesg = str;
+        }
+
+        @Override
+        public void run() {
+            // send to the tryserver machine
+            serversend("mlsoftlaberge.ddns.net");
+        }
+
+        private void serversend(String destip) {
+            // try to send the message thru the starship socket
+            try {
+                PrintWriter out = new PrintWriter(new BufferedWriter(
+                        new OutputStreamWriter(starshipSocket.getOutputStream())), true);
+                out.println(mesg);
+                out.flush();
+                Log.d("clientthread", "data sent: " + mesg);
+            } catch (Exception e) {
+                Log.d("clientthread", e.toString());
+            }
+        }
+
+    }
+
+    // ===================================================================================
+    // connect with the starship server, announce myself, and wait for orders
+
+    private Fetcher mFetcher = new Fetcher(this);
+
+    private int SERVERPORT = 1701;
+
+    private Handler mHandler = new Handler();
+
+    private Thread starshipThread=null;
+    private Socket starshipSocket=null;
+
+    public void initstarship() {
+        say("Initialize the starship network");
+        // start the starship thread
+        Thread starshipThread = new Thread(new StarshipThread());
+        starshipThread.start();
+    }
+
+    public void stopstarship() {
+        say("Stop the starship network");
+        // stop the server thread
+        try {
+            starshipThread.interrupt();
+        } catch (Exception e) {
+            Log.d("stopstarshipthread", e.toString());
+        }
+        // close the socket of the server
+        try {
+            starshipSocket.close();
+            starshipSocket=null;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+    }
+
+    class StarshipThread implements Runnable {
+
+        String identification="multipad";
+
+        public StarshipThread() {
+            identification="multipad:"+mFetcher.fetch_device_name()+
+                    "/"+mFetcher.fetch_device_release()+
+                    "/"+mFetcher.fetch_package_version();
+        }
+
+        @Override
+        public void run() {
+            // send to the tryserver machine
+            starshipsend("192.168.3.101");
+        }
+
+        private void starshipsend(String destip) {
+            while(!Thread.currentThread().isInterrupted()) {
+                // try to connect to a socket
+                try {
+                    InetAddress serverAddr = InetAddress.getByName(destip);
+                    starshipSocket = new Socket(serverAddr, SERVERPORT);
+                    Log.d("starshipthread", "server connected " + destip);
+                } catch (Exception e) {
+                    Log.d("starshipthread", e.toString());
+                }
+                // try to send the identification
+                try {
+                    PrintWriter out = new PrintWriter(new BufferedWriter(
+                            new OutputStreamWriter(starshipSocket.getOutputStream())), true);
+                    out.println(identification);
+                    out.flush();
+                    Log.d("starshipthread", "data sent: " + identification);
+                } catch (Exception e) {
+                    Log.d("starshipthread", e.toString());
+                }
+                // prepare the input stream
+                BufferedReader bufinput = null;
+                try {
+                    bufinput = new BufferedReader(new InputStreamReader(starshipSocket.getInputStream()));
+                } catch (Exception e) {
+                    Log.d("starshipthread", e.toString());
+                }
+                // continue to receive all answers from the starship server until it dies
+                while (!Thread.currentThread().isInterrupted()) {
+                    // try to receive the answer
+                    try {
+                        String read = bufinput.readLine();
+                        if (read != null) {
+                            mHandler.post(new updateUIThread(read,1));
+                            Log.d("starshipthread", "answer received: " + read);
+                        }
+                    } catch (Exception e) {
+                        Log.d("starshipthread", e.toString());
+                        break;
+                    }
+                }
+                // try to close the socket of the client
+                try {
+                    starshipSocket.close();
+                    starshipSocket=null;
+                    Log.d("starshipthread", "server closed " + destip);
+                } catch (Exception e) {
+                    Log.d("starshipthread", e.toString());
+                }
+
+            }
+        }
+
+    }
+
+    // ===== thread used to update the ui of the running application with received text =====
+    class updateUIThread implements Runnable {
+        private String msg = null;
+        private int rem=0;
+
+        public updateUIThread(String str, int remote) {
+            msg = str;
+            rem = remote;
+            Log.d("uithread", str);
+        }
+
+        @Override
+        public void run() {
+            if (msg != null) {
+                say(msg);
+            }
+        }
     }
 
     // =====================================================================================
