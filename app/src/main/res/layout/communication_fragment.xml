@@ -10,35 +10,73 @@
         android:id="@+id/fragment_title"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:text="Fragment Communication"
         android:textAlignment="center"
         android:textColor="@android:color/white"
-        android:textStyle="bold"
         android:textSize="24sp"
-        android:text="Fragment Communication"/>
+        android:textStyle="bold" />
 
-    <Button
-        android:id="@+id/back_button"
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="32dp"
-        android:layout_gravity="center"
-        android:layout_marginEnd="2dp"
-        android:layout_marginStart="2dp"
-        android:background="@drawable/trekbutton_indigo"
-        android:maxLines="1"
-        android:text="Back"
-        android:textSize="18sp" />
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
 
-    <Button
-        android:id="@+id/listen_button"
+        <Button
+            android:id="@+id/opencomm_button"
+            android:layout_width="0dp"
+            android:layout_height="32dp"
+            android:layout_gravity="center"
+            android:layout_marginEnd="2dp"
+            android:layout_marginStart="2dp"
+            android:layout_weight="1"
+            android:background="@drawable/trekbutton_green"
+            android:maxLines="1"
+            android:text="Open-Comm"
+            android:textSize="18sp" />
+
+        <Button
+            android:id="@+id/closecomm_button"
+            android:layout_width="0dp"
+            android:layout_height="32dp"
+            android:layout_gravity="center"
+            android:layout_marginEnd="2dp"
+            android:layout_marginStart="2dp"
+            android:layout_weight="1"
+            android:background="@drawable/trekbutton_red"
+            android:maxLines="1"
+            android:text="Close-Comm"
+            android:textSize="18sp" />
+
+    </LinearLayout>
+
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="32dp"
-        android:layout_gravity="center"
-        android:layout_marginEnd="2dp"
-        android:layout_marginStart="2dp"
-        android:background="@drawable/trekbutton_vert"
-        android:maxLines="1"
-        android:text="Listen"
-        android:textSize="18sp" />
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <EditText
+            android:id="@+id/command_text"
+            android:layout_width="0dp"
+            android:layout_height="32dp"
+            android:layout_weight="4"
+            android:background="@android:color/darker_gray"
+            android:textColor="@android:color/white"/>
+
+        <Button
+            android:id="@+id/sendcmd_button"
+            android:layout_width="0dp"
+            android:layout_height="32dp"
+            android:layout_gravity="center"
+            android:layout_marginEnd="2dp"
+            android:layout_marginStart="2dp"
+            android:layout_weight="1"
+            android:background="@drawable/trekbutton_vert"
+            android:maxLines="1"
+            android:text="SEND"
+            android:textSize="18sp" />
+
+    </LinearLayout>
+
 
     <ScrollView
         android:id="@+id/view_console"
@@ -50,9 +88,9 @@
             android:id="@+id/logs_console"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:text="Console log"
             android:scrollHorizontally="true"
             android:scrollbars="horizontal"
+            android:text="Console log"
             android:textColor="@android:color/holo_green_light"
             android:textSize="18sp"
             android:textStyle="bold"

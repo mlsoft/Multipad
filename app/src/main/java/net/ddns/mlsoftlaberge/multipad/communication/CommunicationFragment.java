@@ -34,6 +34,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TextView;
 
 import net.ddns.mlsoftlaberge.multipad.R;
@@ -58,6 +59,9 @@ public class CommunicationFragment extends Fragment {
         String communicationLogs();
         void communicationSpeak(String text);
         void communicationListen();
+        void communicationOpencomm();
+        void communicationClosecomm();
+        void communicationSendcmd(String cmd);
     }
 
     // the handle to the calling activity
@@ -87,9 +91,13 @@ public class CommunicationFragment extends Fragment {
     // -------------------------------------------
     private TextView mFragmentTitle;
 
-    private Button mBackButton;
+    private Button mOpencommButton;
 
-    private Button mListenButton;
+    private Button mClosecommButton;
+
+    private EditText mCommandText;
+
+    private Button mSendcmdButton;
 
     private TextView mLogsConsole;
 
@@ -106,28 +114,51 @@ public class CommunicationFragment extends Fragment {
         // the title of the fragment
         mFragmentTitle = (TextView) view.findViewById(R.id.fragment_title);
 
-        // the back button
-        mBackButton = (Button) view.findViewById(R.id.back_button);
-        mBackButton.setOnClickListener(new View.OnClickListener() {
+        // the open communications button
+        mOpencommButton = (Button) view.findViewById(R.id.opencomm_button);
+        mOpencommButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 // do the job
                 buttonsound();
-                say("The BACK button is pressed");
-                if(isChatty) speak("back");
-                modechange(0);
+                say("The OpenComm button is pressed");
+                if(isChatty) speak("open communications");
+                mOnCommunicationInteractionListener.communicationOpencomm();
             }
         });
 
-        // the listen button
-        mListenButton = (Button) view.findViewById(R.id.listen_button);
-        mListenButton.setOnClickListener(new View.OnClickListener() {
+        // the close communications button
+        mClosecommButton = (Button) view.findViewById(R.id.closecomm_button);
+        mClosecommButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 // do the job
-                listen();
+                buttonsound();
+                say("The CloseComm button is pressed");
+                if(isChatty) speak("close communications");
+                mOnCommunicationInteractionListener.communicationClosecomm();
             }
         });
+
+        // the command input field
+        mCommandText = (EditText) view.findViewById(R.id.command_text);
+        mCommandText.setText("");
+
+        // the send command button
+        mSendcmdButton = (Button) view.findViewById(R.id.sendcmd_button);
+        mSendcmdButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // do the job
+                buttonsound();
+                say("The Send button is pressed");
+                if(isChatty) speak("SEND");
+                mOnCommunicationInteractionListener.communicationSendcmd(mCommandText.getText().toString());
+                mCommandText.setText("");
+            }
+        });
+
+
 
         // the console to display logs history
         mLogsConsole = (TextView) view.findViewById(R.id.logs_console);
@@ -150,8 +181,10 @@ public class CommunicationFragment extends Fragment {
         Typeface face3 = Typeface.createFromAsset(getActivity().getAssets(), "finalnew.ttf");
         // top buttons
         mFragmentTitle.setTypeface(face3);
-        mBackButton.setTypeface(face2);
-        mListenButton.setTypeface(face3);
+        mOpencommButton.setTypeface(face2);
+        mClosecommButton.setTypeface(face2);
+        mCommandText.setTypeface(face1);
+        mSendcmdButton.setTypeface(face2);
         mLogsConsole.setTypeface(face1);
     }
 

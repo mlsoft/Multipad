@@ -45,6 +45,7 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 
 import net.ddns.mlsoftlaberge.multipad.communication.CommunicationFragment;
+import net.ddns.mlsoftlaberge.multipad.information.InformationFragment;
 import net.ddns.mlsoftlaberge.multipad.sensor.SensorFragment;
 import net.ddns.mlsoftlaberge.multipad.settings.SettingsFragment;
 import net.ddns.mlsoftlaberge.multipad.utils.Fetcher;
@@ -65,7 +66,8 @@ public class MultipadActivity extends Activity
         implements RecognitionListener ,
         MultipadFragment.OnMultipadInteractionListener,
         SensorFragment.OnSensorInteractionListener ,
-        CommunicationFragment.OnCommunicationInteractionListener {
+        CommunicationFragment.OnCommunicationInteractionListener,
+        InformationFragment.OnInformationInteractionListener {
 
 
     // =====================================================================================
@@ -164,6 +166,37 @@ public class MultipadActivity extends Activity
         return(logbuffer.toString());
     }
 
+    @Override
+    public void communicationOpencomm() {
+        initstarship();
+    }
+
+    @Override
+    public void communicationClosecomm() {
+        stopstarship();
+    }
+
+    @Override
+    public void communicationSendcmd(String cmd) {
+        sendtext(cmd);
+    }
+
+    // --- Information fragment ---
+    @Override
+    public void informationButtonsound() {
+        buttonsound();
+    }
+
+    @Override
+    public void informationSay(String text) {
+        say(text);
+    }
+
+    @Override
+    public void informationSpeak(String text) {
+        speak(text);
+    }
+
     // =====================================================================================
 
     // tag for fragment transactions
@@ -173,6 +206,7 @@ public class MultipadActivity extends Activity
     private MultipadFragment mMultipadFragment=null;
     private SensorFragment mSensorFragment=null;
     private CommunicationFragment mCommunicationFragment=null;
+    private InformationFragment mInformationFragment=null;
     private SettingsFragment mSettingsFragment=null;
 
     // current fragment mode
@@ -237,6 +271,9 @@ public class MultipadActivity extends Activity
 
     // the communication fragment button
     private Button mCommButton;
+
+    // the information fragment button
+    private Button mInfoButton;
 
 
     // ==============================================================================
@@ -438,6 +475,18 @@ public class MultipadActivity extends Activity
             }
         });
 
+        // the information fragment button
+        mInfoButton = (Button) findViewById(R.id.info_button);
+        mInfoButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                buttonsound();
+                say("Information");
+                if(isChatty) speak("Information");
+                switchfragment(3);
+            }
+        });
+
         // ==========================================================================
         // set fonts on widgets
         // load fonts in mem
@@ -463,6 +512,7 @@ public class MultipadActivity extends Activity
         mMultipadButton.setTypeface(face1);
         mSensorButton.setTypeface(face1);
         mCommButton.setTypeface(face1);
+        mInfoButton.setTypeface(face1);
 
         // --------------------------------------------------------------------------
         // create the 1 initial fragment
@@ -486,7 +536,7 @@ public class MultipadActivity extends Activity
     public void onStart() {
         super.onStart();
         // initialize the communications
-        initstarship();
+        //initstarship();
     }
 
     // save the preferences before exiting
@@ -517,24 +567,35 @@ public class MultipadActivity extends Activity
         final FragmentTransaction ft = getFragmentManager().beginTransaction();
         switch(mode) {
             case 0:
+                ft.setCustomAnimations(R.anim.slideinleft, R.anim.slideoutright);
                 if(mMultipadFragment==null) mMultipadFragment=new MultipadFragment();
                 ft.replace(R.id.fragment_block, mMultipadFragment, TAG);
                 ft.commit();
                 currentMode=mode;
                 break;
             case 1:
+                ft.setCustomAnimations(R.anim.slideinleft, R.anim.slideoutright);
                 if(mSensorFragment==null) mSensorFragment=new SensorFragment();
                 ft.replace(R.id.fragment_block, mSensorFragment, TAG);
                 ft.commit();
                 currentMode=mode;
                 break;
             case 2:
+                ft.setCustomAnimations(R.anim.slideinleft, R.anim.slideoutright);
                 if(mCommunicationFragment==null) mCommunicationFragment=new CommunicationFragment();
                 ft.replace(R.id.fragment_block, mCommunicationFragment, TAG);
                 ft.commit();
                 currentMode=mode;
                 break;
+            case 3:
+                ft.setCustomAnimations(R.anim.slideinleft, R.anim.slideoutright);
+                if(mInformationFragment==null) mInformationFragment=new InformationFragment();
+                ft.replace(R.id.fragment_block, mInformationFragment, TAG);
+                ft.commit();
+                currentMode=mode;
+                break;
             case 99:
+                ft.setCustomAnimations(R.anim.slideinleft, R.anim.slideoutright);
                 if(mSettingsFragment==null) mSettingsFragment=new SettingsFragment();
                 ft.replace(R.id.fragment_block, mSettingsFragment, TAG);
                 ft.commit();
@@ -930,7 +991,7 @@ public class MultipadActivity extends Activity
         @Override
         public void run() {
             if (msg != null) {
-                say(msg);
+                say("Recv: " + msg);
             }
         }
     }

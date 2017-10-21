@@ -177,6 +177,20 @@
                 android:textSize="18sp"
                 android:textStyle="bold" />
 
+            <Button
+                android:id="@+id/info_button"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_marginBottom="2dp"
+                android:layout_marginTop="2dp"
+                android:layout_marginRight="4dp"
+                android:layout_weight="10"
+                android:background="@drawable/trekbutton_vert_right"
+                android:maxLines="1"
+                android:text="INFO"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+
 
         </LinearLayout>
 
